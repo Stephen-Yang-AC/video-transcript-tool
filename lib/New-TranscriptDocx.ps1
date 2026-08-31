@@ -12,8 +12,16 @@ function New-TranscriptDocx {
         [string[]] $RawParagraphs   = @()
     )
 
-    $word = $null
-    $doc  = $null
+    $word   = $null
+    $doc    = $null
+    $sel    = $null
+    $footer = $null
+    $fRange = $null
+
+    # 記下呼叫前既有的 Word 進程，收尾時才分得出哪個是本函式開的。
+    # 絕不能動到使用者自己開著的 Word。
+    $before = @(Get-Process WINWORD -ErrorAction SilentlyContinue | Select-Object -ExpandProperty Id)
+
     try {
         $word = New-Object -ComObject Word.Application
         $word.Visible       = $false
@@ -94,12 +102,31 @@ function New-TranscriptDocx {
         return $pages
     }
     finally {
-        if ($doc)  { try { $doc.Close(0) } catch { } }
+        if ($doc) { try { $doc.Close(0) } catch { } }
+
+        # 先釋放所有子物件的 COM 參考再結束 Word。只要還有 RCW 沒放掉，
+        # Quit() 之後 Word 仍可能滯留成沒有視窗的 WINWORD.EXE，
+        # 一路累積並占住輸出資料夾（會導致該資料夾無法改名或刪除）。
+        foreach ($o in @($fRange, $footer, $sel, $doc)) {
+            if ($o) { try { [void][Runtime.InteropServices.Marshal]::ReleaseComObject($o) } catch { } }
+        }
+        $fRange = $null; $footer = $null; $sel = $null; $doc = $null
+        [GC]::Collect(); [GC]::WaitForPendingFinalizers()
+
         if ($word) {
             try { $word.Quit(0) } catch { }
-            try { [void][System.Runtime.InteropServices.Marshal]::ReleaseComObject($word) } catch { }
+            try { [void][Runtime.InteropServices.Marshal]::ReleaseComObject($word) } catch { }
+            $word = $null
         }
-        [GC]::Collect()
-        [GC]::WaitForPendingFinalizers()
+        [GC]::Collect(); [GC]::WaitForPendingFinalizers()
+
+        # 保險：若仍有本函式開出來、且沒有視窗的 Word 殘留，才結束它。
+        # 兩個條件缺一不可，確保不會誤關使用者自己開著的文件。
+        Start-Sleep -Milliseconds 300
+        foreach ($p in @(Get-Process WINWORD -ErrorAction SilentlyContinue)) {
+            if ($before -notcontains $p.Id -and -not $p.MainWindowTitle) {
+                try { Stop-Process -Id $p.Id -Force -ErrorAction Stop } catch { }
+            }
+        }
     }
 }
