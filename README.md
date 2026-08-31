@@ -35,36 +35,43 @@ faster-whisper（本機語音辨識）、opencc（簡轉繁）。
 
 ## 二、基本用法
 
-**最簡單：用 `逐字稿.cmd` 啟動器**（推薦，不會被執行原則擋下）
+一律用 `逐字稿.cmd` 啟動器即可，它不會被 PowerShell 的執行原則擋下。
 
-直接在檔案總管裡雙擊 `逐字稿.cmd`，貼上網址按 Enter 即可。
+**不帶參數：雙擊執行**
 
-或在命令列傳入網址：
+在檔案總管裡雙擊 `逐字稿.cmd`，貼上網址按 Enter。
+
+**一支影片**
 
 ```powershell
 .\逐字稿.cmd "https://www.youtube.com/watch?v=XXXXXXXXXXX"
 ```
 
-啟動器也能轉交其他參數：
+**多支影片**：網址以空白分隔，會依序處理。
 
 ```powershell
-.\逐字稿.cmd -Url "https://youtu.be/XXXX" -ForceWhisper -NoDocx
+.\逐字稿.cmd "https://youtu.be/AAAA" "https://youtu.be/BBBB"
 ```
 
-**直接呼叫主程式**
+**加上參數**：網址寫在前，參數接在後。
+
+```powershell
+.\逐字稿.cmd "https://youtu.be/XXXX" -ForceWhisper -NoDocx
+```
+
+網址請務必用雙引號包住——YouTube 網址常含 `&`，在命令列裡不加引號會被截斷。
+
+<details>
+<summary>也可以直接呼叫主程式</summary>
 
 ```powershell
 .\Get-VideoTranscript.ps1 -Url "https://www.youtube.com/watch?v=XXXXXXXXXXX"
 ```
 
-一次處理多支影片：
+用法與啟動器相同，只是若出現「因為這個系統上已停用指令碼執行」，
+得先自行處理執行原則，見第七節。
 
-```powershell
-.\Get-VideoTranscript.ps1 -Url "https://youtu.be/AAAA", "https://youtu.be/BBBB"
-```
-
-> 直接呼叫 .ps1 若出現「因為這個系統上已停用指令碼執行」，見第七節的處理方式；
-> 用 `逐字稿.cmd` 則完全不會遇到這個問題。
+</details>
 
 ---
 
@@ -97,7 +104,7 @@ faster-whisper（本機語音辨識）、opencc（簡轉繁）。
 範例——影片字幕是簡體或機器字幕，想改用語音辨識重跑：
 
 ```powershell
-.\Get-VideoTranscript.ps1 -Url "https://youtu.be/XXXX" -ForceWhisper
+.\逐字稿.cmd "https://youtu.be/XXXX" -ForceWhisper
 ```
 
 ---
@@ -154,6 +161,11 @@ Windows 用戶端的預設執行原則是 `Restricted`，會擋掉所有 .ps1。
 本機的 Windows Smart App Control 會封鎖 PyAV 的原生 DLL。
 工具已內建繞法：改由 FFmpeg 解碼音訊，不需要更動任何系統安全設定。
 若仍出現此訊息，確認 `setup.ps1` 有把 FFmpeg 裝好。
+
+**「音訊下載失敗，無法進行語音辨識」**
+YouTube 有時會對下載請求回 HTTP 403。工具會自動換三種播放器用戶端重試
+（預設 → `web_safari` → `mweb`），多數情況會自行解決，畫面上會看到重試訊息。
+若三種都失敗，多半是該影片需要登入，加上 `-CookiesFromBrowser edge` 再試。
 
 **影片需要登入才能看**
 加上 `-CookiesFromBrowser edge`（或 `chrome`），借用瀏覽器既有的登入狀態。

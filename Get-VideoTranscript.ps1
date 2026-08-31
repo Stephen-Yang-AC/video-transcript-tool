@@ -19,7 +19,10 @@
 #>
 [CmdletBinding()]
 param(
-    [Parameter(Mandatory = $true, Position = 0)]
+    # ValueFromRemainingArguments 讓多個網址能以空白分隔傳入。
+    # 這是啟動器 逐字稿.cmd 能支援多支影片的關鍵：powershell -File 只會把
+    # 「-Url "a","b"」當成一個字串，得靠位置參數逐個接收才行。
+    [Parameter(Mandatory = $true, Position = 0, ValueFromRemainingArguments = $true)]
     [string[]] $Url,
 
     [string] $OutDir,
@@ -48,6 +51,16 @@ param(
 
 $ErrorActionPreference = 'Stop'
 try { [Console]::OutputEncoding = [System.Text.Encoding]::UTF8 } catch { }
+
+# ValueFromRemainingArguments 會把無法辨識的參數一併收進 $Url，
+# 這裡先攔下來，免得打錯的旗標被當成網址、丟出看不懂的錯誤。
+$badArgs = @($Url | Where-Object { $_ -like '-*' })
+if ($badArgs.Count -gt 0) {
+    Write-Host ('無法辨識的參數：{0}' -f ($badArgs -join '、')) -ForegroundColor Red
+    Write-Host '請檢查拼寫。可用參數見 README 第四節，或執行：' -ForegroundColor Red
+    Write-Host '   Get-Help .\Get-VideoTranscript.ps1 -Detailed' -ForegroundColor Red
+    exit 1
+}
 
 $script:Root = Split-Path -Parent $MyInvocation.MyCommand.Path
 if (-not $OutDir) { $OutDir = Join-Path $script:Root '輸出' }
@@ -513,17 +526,40 @@ function Get-WhisperSegments {
     if (-not (Test-Path $pyScript)) { throw "找不到 $pyScript" }
 
     Write-Host '  - 下載音訊…' -ForegroundColor DarkGray
-    $ytArgs = @('-f', 'bestaudio/best', '-x', '--audio-format', 'wav',
-                '--postprocessor-args', 'ffmpeg:-ar 16000 -ac 1',
-                '-o', (Join-Path $TempDir '%(id)s.%(ext)s')) + $CommonArgs + @($VideoUrl)
+    $baseArgs = @('-f', 'bestaudio/best', '-x', '--audio-format', 'wav',
+                  '--postprocessor-args', 'ffmpeg:-ar 16000 -ac 1',
+                  '-o', (Join-Path $TempDir '%(id)s.%(ext)s')) + $CommonArgs + @($VideoUrl)
     if ($script:FFmpeg) {
-        $ytArgs = @('--ffmpeg-location', (Split-Path -Parent $script:FFmpeg)) + $ytArgs
+        $baseArgs = @('--ffmpeg-location', (Split-Path -Parent $script:FFmpeg)) + $baseArgs
     }
-    Invoke-Native -Exe $script:YtDlp -Arguments $ytArgs -Quiet
 
-    $wav = Get-ChildItem -Path $TempDir -Filter '*.wav' -ErrorAction SilentlyContinue |
-           Select-Object -First 1
-    if (-not $wav) { throw '音訊下載失敗，無法進行語音辨識。' }
+    # YouTube 有時會對預設的播放器用戶端回 HTTP 403，換一個用戶端就能取得。
+    # 這幾個是 yt-dlp 內建的選項，依序重試。非 YouTube 網站會忽略這個參數。
+    $wav = $null
+    $lastOutput = ''
+    foreach ($client in @('', 'web_safari', 'mweb')) {
+        $ytArgs = $baseArgs
+        if ($client) {
+            Write-Host ('    · 下載被拒，改用 {0} 播放器用戶端重試…' -f $client) -ForegroundColor DarkGray
+            $ytArgs = @('--extractor-args', ('youtube:player_client={0}' -f $client)) + $baseArgs
+        }
+
+        $prev = $ErrorActionPreference
+        $ErrorActionPreference = 'Continue'
+        try { $lastOutput = (& $script:YtDlp @ytArgs 2>&1 | Out-String) }
+        finally { $ErrorActionPreference = $prev }
+
+        $wav = Get-ChildItem -Path $TempDir -Filter '*.wav' -ErrorAction SilentlyContinue |
+               Select-Object -First 1
+        if ($wav) { break }
+    }
+
+    if (-not $wav) {
+        $detail = ($lastOutput -split "`n" | Where-Object { $_ -match 'ERROR|error' } |
+                   Select-Object -First 1)
+        if ($detail) { Write-Host ('    yt-dlp：{0}' -f $detail.Trim()) -ForegroundColor DarkGray }
+        throw '音訊下載失敗，無法進行語音辨識。若影片需要登入，請加上 -CookiesFromBrowser edge。'
+    }
 
     $json = Join-Path $TempDir 'whisper.json'
     Write-Host ('  - Whisper 辨識中（模型 {0}）…長片需要數分鐘至數十分鐘。' -f $Model) -ForegroundColor DarkGray
