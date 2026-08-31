@@ -1,5 +1,7 @@
 # YouTube 逐字稿工具
 
+<https://github.com/Stephen-Yang-AC/video-transcript-tool>
+
 把線上影片轉成逐字稿。優先抓取影片既有的字幕，沒有字幕才動用本機語音辨識。
 
 ## 支援的網站
