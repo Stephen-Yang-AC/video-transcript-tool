@@ -1,0 +1,9 @@
+# 逐字稿輸出屬於工作產出，且可能含第三方影片內容，不隨程式碼發布
+輸出/
+
+# 暫存與系統檔
+*.tmp
+*.log
+Thumbs.db
+desktop.ini
+.DS_Store

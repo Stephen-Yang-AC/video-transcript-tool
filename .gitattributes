@@ -1,0 +1,3 @@
+# 這是 Windows 專用工具，檢出時一律使用 CRLF。
+# 特別是 .cmd：cmd.exe 處理只有 LF 換行的批次檔時，goto 與標籤可能失效。
+* text=auto eol=crlf
