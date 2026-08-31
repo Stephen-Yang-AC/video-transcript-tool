@@ -166,7 +166,7 @@ Windows 用戶端的預設執行原則是 `Restricted`，會擋掉所有 .ps1。
 ## 八、檔案結構
 
 ```
-YouTube逐字稿工具\
+video-transcript-tool\
 ├─ 逐字稿.cmd                   啟動器（雙擊即用，繞過執行原則）
 ├─ setup.ps1                    安裝相依套件
 ├─ Get-YouTubeTranscript.ps1    主程式
