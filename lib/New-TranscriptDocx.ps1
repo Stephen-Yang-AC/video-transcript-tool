@@ -1,5 +1,5 @@
 ﻿# 以 Word COM 產出逐字稿 .docx（標楷體 + Times New Roman、頁碼、整理版與原始版各一節）
-# 由 Get-YouTubeTranscript.ps1 以點號載入（dot-source）後呼叫。
+# 由 Get-VideoTranscript.ps1 以點號載入（dot-source）後呼叫。
 
 function New-TranscriptDocx {
     [CmdletBinding()]

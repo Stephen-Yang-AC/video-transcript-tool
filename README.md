@@ -54,13 +54,13 @@ faster-whisper（本機語音辨識）、opencc（簡轉繁）。
 **直接呼叫主程式**
 
 ```powershell
-.\Get-YouTubeTranscript.ps1 -Url "https://www.youtube.com/watch?v=XXXXXXXXXXX"
+.\Get-VideoTranscript.ps1 -Url "https://www.youtube.com/watch?v=XXXXXXXXXXX"
 ```
 
 一次處理多支影片：
 
 ```powershell
-.\Get-YouTubeTranscript.ps1 -Url "https://youtu.be/AAAA", "https://youtu.be/BBBB"
+.\Get-VideoTranscript.ps1 -Url "https://youtu.be/AAAA", "https://youtu.be/BBBB"
 ```
 
 > 直接呼叫 .ps1 若出現「因為這個系統上已停用指令碼執行」，見第七節的處理方式；
@@ -97,7 +97,7 @@ faster-whisper（本機語音辨識）、opencc（簡轉繁）。
 範例——影片字幕是簡體或機器字幕，想改用語音辨識重跑：
 
 ```powershell
-.\Get-YouTubeTranscript.ps1 -Url "https://youtu.be/XXXX" -ForceWhisper
+.\Get-VideoTranscript.ps1 -Url "https://youtu.be/XXXX" -ForceWhisper
 ```
 
 ---
@@ -169,7 +169,7 @@ Windows 用戶端的預設執行原則是 `Restricted`，會擋掉所有 .ps1。
 video-transcript-tool\
 ├─ 逐字稿.cmd                   啟動器（雙擊即用，繞過執行原則）
 ├─ setup.ps1                    安裝相依套件
-├─ Get-YouTubeTranscript.ps1    主程式
+├─ Get-VideoTranscript.ps1    主程式
 ├─ README.md                    本說明
 ├─ lib\
 │  ├─ transcribe.py             faster-whisper 語音辨識

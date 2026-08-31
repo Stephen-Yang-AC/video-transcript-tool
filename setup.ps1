@@ -1,6 +1,6 @@
 ﻿<#
 .SYNOPSIS
-    安裝 YouTube 逐字稿工具所需的相依套件。
+    安裝影片逐字稿工具所需的相依套件。
 
 .DESCRIPTION
     檢查並安裝：yt-dlp（抓字幕／音訊）、FFmpeg（音訊轉檔）、
@@ -71,7 +71,7 @@ function Install-WingetPackage {
 
 # ---------------------------------------------------------------------------
 
-Write-Host 'YouTube 逐字稿工具 — 環境安裝' -ForegroundColor White
+Write-Host '影片逐字稿工具 — 環境安裝' -ForegroundColor White
 
 Write-Step '檢查 winget'
 if (-not (Get-Command winget -ErrorAction SilentlyContinue)) {
@@ -120,5 +120,5 @@ Write-Host ('   python ：{0}' -f $(if ($python) { $python } else { '未安裝' 
 
 Write-Host ''
 Write-Host '完成。用法範例：' -ForegroundColor Cyan
-Write-Host '   .\Get-YouTubeTranscript.ps1 -Url "https://www.youtube.com/watch?v=XXXXXXXXXXX"' -ForegroundColor White
+Write-Host '   .\Get-VideoTranscript.ps1 -Url "https://www.youtube.com/watch?v=XXXXXXXXXXX"' -ForegroundColor White
 Write-Host ''

@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """以 faster-whisper 將音訊檔轉為帶時間碼的逐字稿 JSON。
 
-由 Get-YouTubeTranscript.ps1 呼叫，只在影片沒有字幕可抓時才會用到。
+由 Get-VideoTranscript.ps1 呼叫，只在影片沒有字幕可抓時才會用到。
 輸出格式：{"language": "zh", "duration": 123.4,
            "segments": [{"start": 0.0, "end": 3.2, "text": "..."}, ...]}
 

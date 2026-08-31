@@ -12,10 +12,10 @@
       5. _逐字稿.docx         標楷體 + Times New Roman、含頁碼，整理版與原始版各一節
 
 .EXAMPLE
-    .\Get-YouTubeTranscript.ps1 -Url "https://www.youtube.com/watch?v=XXXXXXXXXXX"
+    .\Get-VideoTranscript.ps1 -Url "https://www.youtube.com/watch?v=XXXXXXXXXXX"
 
 .EXAMPLE
-    .\Get-YouTubeTranscript.ps1 -Url "https://youtu.be/XXXX" -ForceWhisper -Model large-v3
+    .\Get-VideoTranscript.ps1 -Url "https://youtu.be/XXXX" -ForceWhisper -Model large-v3
 #>
 [CmdletBinding()]
 param(

@@ -6,7 +6,7 @@ rem NOTE: keep this file pure ASCII. cmd.exe parses batch files using the
 rem console code page, and non-ASCII text here breaks parsing.
 chcp 65001 >nul
 setlocal
-set "SCRIPT=%~dp0Get-YouTubeTranscript.ps1"
+set "SCRIPT=%~dp0Get-VideoTranscript.ps1"
 
 if not "%~1"=="" goto run
 
