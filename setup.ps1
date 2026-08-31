@@ -120,5 +120,8 @@ Write-Host ('   python ：{0}' -f $(if ($python) { $python } else { '未安裝' 
 
 Write-Host ''
 Write-Host '完成。用法範例：' -ForegroundColor Cyan
-Write-Host '   .\Get-VideoTranscript.ps1 -Url "https://www.youtube.com/watch?v=XXXXXXXXXXX"' -ForegroundColor White
+Write-Host '   .\逐字稿.cmd "https://www.youtube.com/watch?v=XXXXXXXXXXX"' -ForegroundColor White
+Write-Host ''
+Write-Host '   也可以直接雙擊 逐字稿.cmd，貼上網址按 Enter。' -ForegroundColor DarkGray
+Write-Host '   用啟動器不會被 PowerShell 的執行原則擋下。' -ForegroundColor DarkGray
 Write-Host ''
